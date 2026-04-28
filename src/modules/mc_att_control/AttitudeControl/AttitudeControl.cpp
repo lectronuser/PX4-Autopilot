@@ -41,6 +41,26 @@
 
 using namespace matrix;
 
+namespace
+{
+// Earth-frame body angular velocity of the setpoint from a one-step finite
+// difference, with the world-z component substituted by the analytical
+// yaw rate setpoint.
+Vector3f earthFrameFFInput(const Quatf &q_prev, const Quatf &q_now,
+			   const float dt, const float yawspeed_setpoint)
+{
+	Quatf dq = q_now * q_prev.inversed();
+	dq.canonicalize();
+	Vector3f omega = 2.f * dq.imag() / dt;
+
+	if (std::isfinite(yawspeed_setpoint)) {
+		omega(2) = yawspeed_setpoint;
+	}
+
+	return omega;
+}
+} // namespace
+
 void AttitudeControl::setProportionalGain(const matrix::Vector3f &proportional_gain, const float yaw_weight)
 {
 	_proportional_gain = proportional_gain;
@@ -50,6 +70,41 @@ void AttitudeControl::setProportionalGain(const matrix::Vector3f &proportional_g
 	if (_yaw_w > 1e-4f) {
 		_proportional_gain(2) /= _yaw_w;
 	}
+}
+
+void AttitudeControl::setAttitudeSetpoint(const Quatf &qd, const float yawspeed_setpoint, const float dt)
+{
+	Quatf qd_normalized = qd;
+	qd_normalized.normalize();
+
+	// Filter input is the earth-frame body angular velocity of the setpoint trajectory,
+	// with the world-z component substituted by the analytical yawspeed_setpoint
+	// (avoids double-counting and uses the cleaner of the two yaw-rate signals).
+	if (_have_prev_setpoint && dt > 0.f) {
+		_tilt_filter.update(dt, earthFrameFFInput(_attitude_setpoint_q_prev,
+				    qd_normalized, dt, yawspeed_setpoint));
+
+	} else {
+		_tilt_filter.reset(Vector3f{});
+	}
+
+	_attitude_setpoint_q_prev = qd_normalized;
+	_have_prev_setpoint = true;
+	_attitude_setpoint_q = qd_normalized;
+	_yawspeed_setpoint = yawspeed_setpoint;
+}
+
+void AttitudeControl::adaptAttitudeSetpoint(const Quatf &q_delta)
+{
+	_attitude_setpoint_q = q_delta * _attitude_setpoint_q;
+	_attitude_setpoint_q.normalize();
+	_attitude_setpoint_q_prev = q_delta * _attitude_setpoint_q_prev;
+	_attitude_setpoint_q_prev.normalize();
+
+	// Filter state is in world frame; re-express under the new world labeling so
+	// the FF body-frame contribution is unchanged across the heading reset.
+	_tilt_filter.reset(q_delta.rotateVector(_tilt_filter.getState()),
+			   q_delta.rotateVector(_tilt_filter.getRate()));
 }
 
 matrix::Vector3f AttitudeControl::update(const Quatf &q) const
@@ -94,15 +149,11 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q) const
 	// calculate angular rates setpoint
 	Vector3f rate_setpoint = eq.emult(_proportional_gain);
 
-	// Feed forward the yaw setpoint rate.
-	// yawspeed_setpoint is the feed forward commanded rotation around the world z-axis,
-	// but we need to apply it in the body frame (because _rates_sp is expressed in the body frame).
-	// Therefore we infer the world z-axis (expressed in the body frame) by taking the last column of R.transposed (== q.inversed)
-	// and multiply it by the yaw setpoint rate (yawspeed_setpoint).
-	// This yields a vector representing the commanded rotatation around the world z-axis expressed in the body frame
-	// such that it can be added to the rates setpoint.
-	if (std::isfinite(_yawspeed_setpoint)) {
-		rate_setpoint += q.inversed().dcm_z() * _yawspeed_setpoint;
+	if (_ff_enabled) {
+		// Filter state is the smoothed world-frame body angular velocity of the
+		// setpoint, with yawspeed_setpoint folded in. Rotate into the current body
+		// frame for the rate controller below.
+		rate_setpoint += q.rotateVectorInverse(_tilt_filter.getState());
 	}
 
 	// limit rates

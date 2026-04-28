@@ -138,3 +138,157 @@ TEST(AttitudeControlTest, YawWeightScaling)
 	// THEN: no actuation (also no NAN)
 	EXPECT_EQ(rate_setpoint, Vector3f());
 }
+
+class AttitudeControlFeedforwardTest : public ::testing::Test
+{
+public:
+	AttitudeControlFeedforwardTest()
+	{
+		_attitude_control.setProportionalGain(Vector3f(6.5f, 6.5f, 2.8f), 0.4f);
+		_attitude_control.setRateLimit(Vector3f(10.f, 10.f, 10.f));
+	}
+
+	// Push a constant-rate ramp around the given body axis until the reference model is settled.
+	// First call uses dt < 0 to reset the model to the current sample (matches the wrapper's
+	// behaviour on the very first setpoint after boot).
+	Quatf rampSetpoint(const Vector3f &body_rate, float yawspeed_sp, int steps)
+	{
+		Quatf q_d;
+
+		for (int i = 0; i < steps; i++) {
+			q_d = q_d * Quatf(AxisAnglef(body_rate * kDt));
+			_attitude_control.setAttitudeSetpoint(q_d, yawspeed_sp, (i == 0) ? -1.f : kDt);
+		}
+
+		return q_d;
+	}
+
+	AttitudeControl _attitude_control;
+
+	static constexpr float kDt = 0.004f;                                    // 250 Hz setpoint rate
+	static constexpr float kOmegaN = AttitudeControl::kTiltFFNaturalFreq;   // 10 rad/s
+	static constexpr int kSettleSteps = 500;                                // ~ 20 / omega_n, residual < 1e-7
+};
+
+TEST_F(AttitudeControlFeedforwardTest, ConstantSetpointGivesNoFeedforward)
+{
+	// GIVEN: a constant tilted setpoint repeated with valid dt
+	const Quatf q_d(AxisAnglef(Vector3f(0.1f, 0.f, 0.f)));
+
+	for (int i = 0; i < kSettleSteps; i++) {
+		_attitude_control.setAttitudeSetpoint(q_d, 0.f, (i == 0) ? -1.f : kDt);
+	}
+
+	// WHEN: vehicle is at the setpoint (no error)
+	const Vector3f rate_setpoint = _attitude_control.update(q_d);
+
+	// THEN: rate setpoint is zero — non-moving SP gives a zero model rate output
+	EXPECT_NEAR(rate_setpoint.norm(), 0.f, 1e-3f);
+}
+
+TEST_F(AttitudeControlFeedforwardTest, RollRampProducesRollFeedforward)
+{
+	// GIVEN: a steady roll ramp, vehicle perfectly tracking
+	const float omega = 0.5f;
+	const Quatf q_d = rampSetpoint(Vector3f(omega, 0.f, 0.f), 0.f, kSettleSteps);
+
+	// WHEN: vehicle is at the setpoint (no error → P term = 0)
+	const Vector3f rate_setpoint = _attitude_control.update(q_d);
+
+	// THEN: filter state equals the constant ω input → FF matches truth exactly
+	EXPECT_NEAR(rate_setpoint(0), omega, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(1), 0.f, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(2), 0.f, 1e-3f);
+}
+
+TEST_F(AttitudeControlFeedforwardTest, PitchRampProducesPitchFeedforward)
+{
+	// GIVEN: a steady pitch ramp, vehicle perfectly tracking
+	const float omega = 0.5f;
+	const Quatf q_d = rampSetpoint(Vector3f(0.f, omega, 0.f), 0.f, kSettleSteps);
+
+	const Vector3f rate_setpoint = _attitude_control.update(q_d);
+
+	EXPECT_NEAR(rate_setpoint(0), 0.f, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(1), omega, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(2), 0.f, 1e-3f);
+}
+
+TEST_F(AttitudeControlFeedforwardTest, HighRateRampStillExact)
+{
+	// GIVEN: a high-rate pitch ramp (~90 dps). Filter input is constant ω regardless
+	// of body rate, so steady-state error is rate-independent.
+	const float omega = 1.5708f;    // ~90 dps
+	const Quatf q_d = rampSetpoint(Vector3f(0.f, omega, 0.f), 0.f, kSettleSteps);
+
+	const Vector3f rate_setpoint = _attitude_control.update(q_d);
+
+	EXPECT_NEAR(rate_setpoint(0), 0.f, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(1), omega, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(2), 0.f, 1e-3f);
+}
+
+TEST_F(AttitudeControlFeedforwardTest, YawRampOnlyAnalyticalFeedforwardContributes)
+{
+	// GIVEN: a yaw ramp with the analytical yawspeed FF set to the same rate.
+	// The world-frame ω input has its z-component substituted by yawspeed_setpoint;
+	// the rest is zero. After filter settling and rotation to body, the FF lies
+	// purely along z_w_in_body, giving body-z = omega for a level-yaw scenario.
+	const float omega = 0.5f;
+	const Quatf q_d = rampSetpoint(Vector3f(0.f, 0.f, omega), omega, kSettleSteps);
+
+	const Vector3f rate_setpoint = _attitude_control.update(q_d);
+
+	EXPECT_NEAR(rate_setpoint(0), 0.f, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(1), 0.f, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(2), omega, 1e-3f);
+}
+
+TEST_F(AttitudeControlFeedforwardTest, TiltedYawDoesNotDoubleCount)
+{
+	// GIVEN: body locked at constant tilt, yawing around world-z at constant rate.
+	// Truth body angular velocity: ω_body = R_BW · (0, 0, yaw_rate)
+	//                                     = (-sin(tilt)·yaw_rate, 0, cos(tilt)·yaw_rate)
+	// The earth-frame ω input is (0, 0, yaw_rate); rotation to body gives the truth.
+	// Filtering yaw_sp_move_rate alongside the tilt rate avoids any double-count.
+	const float tilt = 0.5f;        // ~28.6° pitch
+	const float yaw_rate = 0.5f;    // ~28.6 dps
+	const Quatf q_pitch(AxisAnglef(Vector3f(0.f, tilt, 0.f)));
+	Quatf q_d;
+
+	for (int i = 0; i < kSettleSteps; i++) {
+		const Quatf q_yaw(AxisAnglef(Vector3f(0.f, 0.f, yaw_rate * kDt * i)));
+		q_d = q_yaw * q_pitch;
+		_attitude_control.setAttitudeSetpoint(q_d, yaw_rate, (i == 0) ? -1.f : kDt);
+	}
+
+	// WHEN: vehicle is at the setpoint
+	const Vector3f rate_setpoint = _attitude_control.update(q_d);
+
+	// THEN: rate setpoint matches the analytical world-z rotation in body frame
+	EXPECT_NEAR(rate_setpoint(0), -sinf(tilt) * yaw_rate, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(1), 0.f, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(2),  cosf(tilt) * yaw_rate, 1e-3f);
+}
+
+TEST_F(AttitudeControlFeedforwardTest, FeedForwardDisabledSuppressesContribution)
+{
+	// GIVEN: a settled roll-ramp FF
+	const float omega = 0.5f;
+	const Quatf q_d = rampSetpoint(Vector3f(omega, 0.f, 0.f), 0.f, kSettleSteps);
+
+	// WHEN: FF is disabled (e.g. autotune active)
+	_attitude_control.setFeedForwardEnabled(false);
+	Vector3f rate_setpoint = _attitude_control.update(q_d);
+
+	// THEN: no FF applied even though the model still holds the ramp rate
+	EXPECT_NEAR(rate_setpoint.norm(), 0.f, 1e-3f);
+
+	// AND WHEN: re-enabled, the FF returns immediately (model state preserved)
+	_attitude_control.setFeedForwardEnabled(true);
+	rate_setpoint = _attitude_control.update(q_d);
+
+	EXPECT_NEAR(rate_setpoint(0), omega, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(1), 0.f, 1e-3f);
+	EXPECT_NEAR(rate_setpoint(2), 0.f, 1e-3f);
+}
