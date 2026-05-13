@@ -2,7 +2,10 @@
 #
 # PX4 FMUv6X specific board MAVLink startup script.
 #------------------------------------------------------------------------------
-
+if ifconfig eth0 up
+then
+    udhcpc -i eth0 -t 3 &
+fi
 # if skynode base board is detected start Mavlink on Telem2
 if ver hwbasecmp 009 010 011
 then
