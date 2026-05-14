@@ -77,19 +77,19 @@ fi
 if ver hwtypecmp V6X000
 then
 	# Lectron FMU-V6X Custom Sensor Configuration
-	
+
 	# SPI1: ICM-42670-P (FMU Board)
 	# Driver Y-axis negation removed, using R=0
 	icm42670p -s -b 1 -R 0 start
-	
+
 	# SPI2: ICM-42670-P (Sensor Board)
 	# Rotated CW 90° (YAW 90°) - driver handles Y & Z negation
 	icm42670p -s -b 2 -R 6 start
-	
+
 	# SPI3: BMI270 (6-axis IMU)
-	# Testing with current driver (Y & Z negated)
-	bmi270 -s -b 3 -R 0 start
-	
+	# Rotated 180° (YAW 180°) - Driver compensates for axis orientation
+	bmi270 -s -b 3 -R 4 start
+
 elif ver hwtypecmp V6X006 V6X008
 then
 	if ver hwtypecmp V6X006

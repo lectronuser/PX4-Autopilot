@@ -21,9 +21,9 @@ Custom PX4 flight controller board based on STM32H753IIK6TR MCU.
 
 ### Interfaces
 - **IO Coprocessor**: PX4IO-V2 (STM32F100)
-- **Serial Ports**: 
+- **Serial Ports**:
   - UART1 (GPS1)
-  - UART2 (GPS2) 
+  - UART2 (GPS2)
   - UART3 (GPS3)
   - UART6 (Telemetry)
   - UART8 (PX4IO)
@@ -215,6 +215,9 @@ dmesg
 icm42670p -s -b 1 start
 bmi270 -s -b 3 start
 bmm350 -I -b 4 start
+
+listener sensor_accel -n 5 -i 2
+listener system_power
 ```
 
 ### PX4IO not starting

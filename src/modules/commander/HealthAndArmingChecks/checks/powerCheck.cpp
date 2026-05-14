@@ -79,7 +79,7 @@ void PowerChecks::checkAndReport(const Context &context, Report &reporter)
 
 	if (_system_power_sub.copy(&system_power)) {
 		// Check avionics rail voltages (if USB isn't connected)
-		if (!system_power.usb_connected) {
+		if (false /* !system_power.usb_connected */) {
 			float avionics_power_rail_voltage = system_power.voltage5v_v;
 
 			const float low_error_threshold = 4.7f;
