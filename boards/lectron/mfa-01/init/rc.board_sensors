@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# MFA-01 board sensors init
+#------------------------------------------------------------------------------
+board_adc start
+battery_status start
+i2c_launcher start -b 1
+
+# SPI1: ICM-42670-P (FMU Board) - CS: PI9, DRDY: PF2
+icm42670p -s -b 1 -R 4 start
+
+# SPI2: ICM-42670-P (FMU Board) - CS: PI9, DRDY: PF2
+icm42670p -s -b 2 -R 6 start
+
+# SPI3: BMI270
+bmi270 -s -b 3 -R 0 start
+
+# I2C4: BMM350 magnetometer
+bmm350 -I -b 4 start
+
+# I2C4: BMP390 barometer
+bmp390 -I -b 4 start
+
+bmp388 -I -a 0x77 start
+
+bmp388 -X -b 4 -a 0x77 start

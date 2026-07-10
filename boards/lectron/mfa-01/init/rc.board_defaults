@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# board specific defaults
+#------------------------------------------------------------------------------
+
+# Mavlink default on TELEM3 (ttyS1/USART2)
+param set-default MAV_2_CONFIG 103
+param set-default SER_TEL3_BAUD 921600
+# TELEM2 (ttyS4/UART5) is used for SBUS RC input — must NOT be assigned to MAVLink
+param set-default MAV_2_BROADCAST 1
+param set-default MAV_2_MODE 2
+param set-default MAV_2_RADIO_CTL 0
+param set-default MAV_2_RATE 100000
+param set-default MAV_2_REMOTE_PRT 14550
+param set-default MAV_2_UDP_PRT 14550
+
+# By disabling all 3 INA modules, we use the
+# i2c_launcher instead.
+param set-default SENS_EN_INA238 1
+param set-default SENS_EN_INA228 0
+param set-default SENS_EN_INA226 0
+
+if ver hwbasecmp 009 010 011
+then
+	# Skynode: use the "custom participant" config for uxrce_dds_client
+	param set-default UXRCE_DDS_PTCFG 2
+fi
+
+# Enable UAVCAN on CAN1 and CAN2
+param set-default UAVCAN_ENABLE 0
+
+# Battery Configuration (Lectron MFA-01)
+# NOTE: PB1 (scaled_5v) not connected on prototype - voltage monitoring disabled
+# TODO: Connect PB1 to 5V divider in PCB revision
+param set BAT1_SOURCE 0                 # 0=POWER_MODULE (analog ADC), 1=EXTERNAL (I2C/CAN), 2=ESCS
+param set-default BAT1_V_DIV 9.333
+param set-default BAT1_V_CHANNEL 13
+param set-default BAT1_A_PER_V 0.0
+param set-default BAT1_I_CHANNEL -1
+
+# RC Input: SBUS on UART5_RX (TELEM2 port PD2, ttyS4)
+# sbus_config() sets: 100000 baud, 8E2, 2-stop-bit at runtime via tcsetattr
+# rc_io_invert(true) sets: USART_CR2_RXINV via TIOCSINVERT ioctl (CONFIG_STM32H7_USART_INVERT=y)
+# No RC_SERIAL_SINGLEWIRE needed — SBUS is unidirectional on RX pin only
+param set-default RC_INPUT_PROTO 2         # 2=SBUS (enum: PPM=1, SBUS=2, DSM=3)
+param set-default COM_RC_IN_MODE 0         # 0=RC Transmitter mode
+param set-default COM_RC_LOSS_T 0.5        # RC loss timeout (s)
+
+# Disable supply voltage check (no voltage monitoring hardware on prototype)
+param set-default CBRK_SUPPLY_CHK 894281
+
+# IMU Heater Configuration (Lectron MFA-01)
+# Target: ICM-42670P on SPI1 (Primary IMU)
+param set-default SENS_EN_THERMAL 1
+param set-default SENS_TEMP_ID 3604506
+param set-default SENS_IMU_TEMP 50.0
+param set-default SENS_IMU_TEMP_P 2.0       # Proportional gain (default: 1.0)
+param set-default SENS_IMU_TEMP_I 0.05     # Integral gain (default: 0.025)
+param set-default SENS_IMU_TEMP_FF 0.1     # Feedforward (default: 0.05)
+
+safety_button start
