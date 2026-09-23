@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# Lectron FPV specific board sensors init
+#------------------------------------------------------------------------------
+
+board_adc start
+
+icm42688p -s -b 1         -R 0 start
+lsm6dsv   -s -b 2         -R 0 start
+
+ist8310   -I -b 1 -a 0x14 -R 0 start
+bmp581    -I -b 2 -a 0x46      start
