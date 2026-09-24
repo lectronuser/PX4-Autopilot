@@ -1,8 +1,12 @@
 #!/bin/sh
 #
-# Lectron Pi5 Autopilot board MAVLink startup script.
+# Lectron Matrix specific board extras init
 #------------------------------------------------------------------------------
+
 if ifconfig eth0 up
 then
     udhcpc -i eth0 -t 3 &
 fi
+
+# DShot telemetry is always on USART2
+dshot telemetry -d /dev/ttyS1

@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ************************************************************************************/
-#ifndef __NUTTX_CONFIG_LECTRON_FPV_INCLUDE_BOARD_H
-#define __NUTTX_CONFIG_LECTRON_FPV_INCLUDE_BOARD_H
+#ifndef __NUTTX_CONFIG_LECTRON_FPV_PRO_INCLUDE_BOARD_H
+#define __NUTTX_CONFIG_LECTRON_FPV_PRO_INCLUDE_BOARD_H
 
 /************************************************************************************
  * Included Files
@@ -348,20 +348,28 @@
 
 /* Alternate function pin selections ************************************************/
 
+/* UART
+ * USART1  GPS1
+ * USART2  ESC Telemetry (Only RX)
+ * USART3  Debug
+ * UART5   SBUS / RC (Only RX)
+ * UART7   Telem1
+ */
+
 #define GPIO_USART1_RX   GPIO_USART1_RX_2   /* PA10 */
-#define GPIO_USART1_TX   GPIO_USART1_TX_3   /* PB6 */
+#define GPIO_USART1_TX   GPIO_USART1_TX_3   /* PB6  */
 
-#define GPIO_USART2_RX   GPIO_USART2_RX_1   /* PA3 */
-#define GPIO_USART2_TX   GPIO_USART2_TX_2   /* PD5 */
+#define GPIO_USART2_RX   GPIO_USART2_RX_1   /* PA3  */
+#define GPIO_USART2_TX   GPIO_USART2_TX_2   /* PD5  */
 
-#define GPIO_USART3_RX   GPIO_USART3_RX_3   /* PD9 */
+#define GPIO_USART3_RX   GPIO_USART3_RX_3   /* PD9  */
 #define GPIO_USART3_TX   GPIO_USART3_TX_3   /* PD8  */
 
-#define GPIO_UART5_RX    GPIO_UART5_RX_3    /* PD2 */
+#define GPIO_UART5_RX    GPIO_UART5_RX_3    /* PD2  */
 #define GPIO_UART5_TX    GPIO_UART5_TX_3    /* PC12 */
 
-#define GPIO_UART7_RX    GPIO_UART7_RX_3    /* PE7 */
-#define GPIO_UART7_TX    GPIO_UART7_TX_3    /* PE8 */
+#define GPIO_UART7_RX    GPIO_UART7_RX_3    /* PE7  */
+#define GPIO_UART7_TX    GPIO_UART7_TX_3    /* PE8  */
 #define GPIO_UART7_RTS   GPIO_UART7_RTS_1   /* PE9  */
 #define GPIO_UART7_CTS   (GPIO_UART7_CTS_1 | GPIO_PULLDOWN)   /* PE10 */
 
@@ -369,12 +377,14 @@
  *
  * CAN1 is routed to transceiver.
  */
+
 #define GPIO_CAN1_RX     GPIO_CAN1_RX_3     /* PD0  */
 #define GPIO_CAN1_TX     GPIO_CAN1_TX_3     /* PD1  */
 
 /* SPI
- * SPI1 ICM-42688-P
+ * SPI1 is ICM-42688-P
  * SPI2 is OSD AT7456E
+ * SPI2 is LSM6DSV
  */
 
 #define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1   /* PA6 */
@@ -386,6 +396,8 @@
 #define GPIO_SPI2_SCK    GPIO_SPI2_SCK_5    /* PD3 */
 
 /* I2C
+ * I2C1 is IST8310
+ * I2C2 is BMP581
  */
 
 #define GPIO_I2C1_SCL GPIO_I2C1_SCL_2       /* PB8  */
@@ -429,8 +441,38 @@
 
 /* Board provides GPIO or other Hardware for signaling to timing analyzer */
 
+#if defined(CONFIG_BOARD_USE_PROBES)
+# include "stm32_gpio.h"
+# define PROBE_N(n) (1<<((n)-1))
+# define PROBE_1    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTA|GPIO_PIN8)   /* PA8  AUX1 */
+# define PROBE_2    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN11)  /* PE11 AUX2 */
+# define PROBE_3    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN13)  /* PE13 AUX3 */
+# define PROBE_4    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN14)  /* PE14 AUX4 */
+# define PROBE_5    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTD|GPIO_PIN14)  /* PD14 AUX5 */
+# define PROBE_6    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTD|GPIO_PIN15)  /* PD15 AUX6 */
+# define PROBE_7    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTA|GPIO_PIN0)   /* PA0  AUX7 */
+# define PROBE_8    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTA|GPIO_PIN2)   /* PA1  AUX8 */
+# define PROBE_9    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN6)   /* PE6  AUX9 */
+
+# define PROBE_INIT(mask) \
+	do { \
+		if ((mask)& PROBE_N(1)) { stm32_configgpio(PROBE_1); } \
+		if ((mask)& PROBE_N(2)) { stm32_configgpio(PROBE_2); } \
+		if ((mask)& PROBE_N(3)) { stm32_configgpio(PROBE_3); } \
+		if ((mask)& PROBE_N(4)) { stm32_configgpio(PROBE_4); } \
+		if ((mask)& PROBE_N(5)) { stm32_configgpio(PROBE_5); } \
+		if ((mask)& PROBE_N(6)) { stm32_configgpio(PROBE_6); } \
+		if ((mask)& PROBE_N(7)) { stm32_configgpio(PROBE_7); } \
+		if ((mask)& PROBE_N(8)) { stm32_configgpio(PROBE_8); } \
+		if ((mask)& PROBE_N(9)) { stm32_configgpio(PROBE_9); } \
+	} while(0)
+
+# define PROBE(n,s)  do {stm32_gpiowrite(PROBE_##n,(s));}while(0)
+# define PROBE_MARK(n) PROBE(n,false);PROBE(n,true)
+#else
 # define PROBE_INIT(mask)
 # define PROBE(n,s)
 # define PROBE_MARK(n)
+#endif
 
-#endif /* __NUTTX_CONFIG_LECTRON_FPV_INCLUDE_BOARD_H */
+#endif /* __NUTTX_CONFIG_LECTRON_FPV_PRO_INCLUDE_BOARD_H */

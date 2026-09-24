@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Lectron FPV specific board sensors init
+# Lectron FPV Pro specific board sensors init
 #------------------------------------------------------------------------------
 
 board_adc start
