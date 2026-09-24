@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2019 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2026 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,7 +34,7 @@
 /**
  * @file board_config.h
  *
- * Lectron FPV internal definitions
+ * Lectron FPV Pro internal definitions
  */
 
 #pragma once
@@ -110,6 +110,16 @@
 
 #define BOARD_NUM_IO_TIMERS 4
 
+#define GPIO_FMU_CH1    /* PA8  */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTA|GPIO_PIN8)
+#define GPIO_FMU_CH2    /* PE11 */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTE|GPIO_PIN11)
+#define GPIO_FMU_CH3    /* PE13 */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTE|GPIO_PIN13)
+#define GPIO_FMU_CH4    /* PE14 */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTE|GPIO_PIN14)
+#define GPIO_FMU_CH5    /* PD14 */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTD|GPIO_PIN14)
+#define GPIO_FMU_CH6    /* PD15 */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTD|GPIO_PIN15)
+#define GPIO_FMU_CH7    /* PA0  */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTA|GPIO_PIN0)
+#define GPIO_FMU_CH8    /* PA1  */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTA|GPIO_PIN1)
+#define GPIO_FMU_CH9    /* PE6  */ (GPIO_INPUT|GPIO_PULLDOWN|GPIO_PORTE|GPIO_PIN6)
+
 
 /* Tone alarm output */
 #define TONE_ALARM_TIMER        3  /* Timer 3 */
@@ -175,6 +185,9 @@
 #define PX4_GPIO_INIT_LIST { \
 		PX4_ADC_GPIO,                     \
 		GPIO_BUZZER_1,                    \
+		GPIO_CAN1_TX,                     \
+		GPIO_CAN1_RX,                     \
+		GPIO_TONE_ALARM_IDLE,	          \
 	}
 
 #define BOARD_ENABLE_CONSOLE_BUFFER

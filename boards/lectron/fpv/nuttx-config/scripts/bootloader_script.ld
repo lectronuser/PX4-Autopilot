@@ -1,7 +1,7 @@
 /****************************************************************************
  * scripts/script.ld
  *
- *   Copyright (C) 2016, 2019 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016, 2026 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  *

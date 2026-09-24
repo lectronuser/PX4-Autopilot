@@ -1,5 +1,4 @@
 /************************************************************************************
- * nuttx-configs/lectron/pi5-autopilot/include/board.h
  *
  *   Copyright (C) 2016-2019 Gregory Nutt. All rights reserved.
  *   Authors: David Sidrane <david.sidrane@nscdg.com>
@@ -32,8 +31,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ************************************************************************************/
-#ifndef __NUTTX_CONFIG_LECTRON_PI5_AUTOPILOT_INCLUDE_BOARD_H
-#define __NUTTX_CONFIG_LECTRON_PI5_AUTOPILOT_INCLUDE_BOARD_H
+#ifndef __NUTTX_CONFIG_LECTRON_MATRIX_INCLUDE_BOARD_H
+#define __NUTTX_CONFIG_LECTRON_MATRIX_INCLUDE_BOARD_H
 
 /************************************************************************************
  * Included Files
@@ -55,7 +54,7 @@
  ************************************************************************************/
 
 /* Clocking *************************************************************************/
-/* The Lectron Pi5 Autopilot board provides the following clock sources:
+/* The Lectron Matrix board provides the following clock sources:
  *
  *   X1: 16 MHz crystal for HSE
  *
@@ -308,17 +307,7 @@
 #define STM32_SDMMC_CLKCR_EDGE      STM32_SDMMC_CLKCR_NEGEDGE
 
 /* LED definitions ******************************************************************/
-/* The Lectron Pi5 Autopilot board has three, LED_GREEN a Green LED, LED_BLUE a Blue LED and
- * LED_RED a Red LED, that can be controlled by software.
- *
- * If CONFIG_ARCH_LEDS is not defined, then the user can control the LEDs in any way.
- * The following definitions are used to access individual LEDs.
- */
-
-/* LED index values for use with board_userled() */
-
-/* LED definitions ******************************************************************/
-/* The Lectron Pi5 Autopilot board has three, LED_GREEN a Green LED, LED_BLUE a Blue LED and
+/* The Lectron Matrix board has three, LED_GREEN a Green LED, LED_BLUE a Blue LED and
  * LED_RED a Red LED, that can be controlled by software.
  *
  * If CONFIG_ARCH_LEDS is not defined, then the user can control the LEDs in any way.
@@ -369,33 +358,33 @@
 
 /* Alternate function pin selections ************************************************/
 
-#define GPIO_USART1_RX   GPIO_USART1_RX_3      /* PB7 */
-#define GPIO_USART1_TX   GPIO_USART1_TX_3      /* PB6 */
+/* UART
+ * USART1  GPS1
+ * USART3  Debug
+ * UART4
+ * UART5   SBUS / RC (Only RX)
+ * UART7   Telem1
+ * UART8   GPS2
+ */
 
-#define GPIO_USART2_RX   GPIO_USART2_RX_1       /* PA3   */
-#define GPIO_USART2_TX   GPIO_USART2_TX_2       /* PD5   */
-#define GPIO_USART2_RTS  GPIO_USART2_RTS_2      /* PD4   */
-#define GPIO_USART2_CTS  GPIO_USART2_CTS_NSS_2  /* PD3   */
+#define GPIO_USART1_RX   GPIO_USART1_RX_3       /* PB7 */
+#define GPIO_USART1_TX   GPIO_USART1_TX_3       /* PB6 */
 
-#define GPIO_USART3_RX   GPIO_USART3_RX_3   /* PD9   */
-#define GPIO_USART3_TX   GPIO_USART3_TX_3   /* PD8   */
+#define GPIO_USART3_RX   GPIO_USART3_RX_3       /* PD9   */
+#define GPIO_USART3_TX   GPIO_USART3_TX_3       /* PD8   */
 
-#define GPIO_UART4_RX    GPIO_UART4_RX_6    /* PH14 */
-#define GPIO_UART4_TX    GPIO_UART4_TX_6    /* PH13 */
+#define GPIO_UART4_RX    GPIO_UART4_RX_6        /* PH14 */
+#define GPIO_UART4_TX    GPIO_UART4_TX_6        /* PH13 */
 
-#define GPIO_UART5_RX    GPIO_UART5_RX_3    /* PD2  */
-#define GPIO_UART5_TX    GPIO_UART5_TX_3    /* PC12 */
-// GPIO_UART5_RTS   no remap                /* PC8  */
+#define GPIO_UART5_RX    GPIO_UART5_RX_3        /* PD2  */
+#define GPIO_UART5_TX    GPIO_UART5_TX_3        /* PC12 */
+// GPIO_UART5_RTS   no remap                    /* PC8  */
 #undef GPIO_UART5_CTS
 #define GPIO_UART5_CTS   ((GPIO_ALT|GPIO_AF8|GPIO_PORTC|GPIO_PIN9) | GPIO_PULLDOWN) /* PC9  */
 
-
-#define GPIO_USART6_RX   GPIO_USART6_RX_1   /* PC7 */
-#define GPIO_USART6_TX   GPIO_USART6_TX_1   /* PC6  */
-
-#define GPIO_UART7_RX    GPIO_UART7_RX_4    /* PF6  */
-#define GPIO_UART7_TX    GPIO_UART7_TX_3    /* PE8  */
-#define GPIO_UART7_RTS   GPIO_UART7_RTS_2   /* PF8  */
+#define GPIO_UART7_RX    GPIO_UART7_RX_4                      /* PF6  */
+#define GPIO_UART7_TX    GPIO_UART7_TX_3                      /* PE8  */
+#define GPIO_UART7_RTS   GPIO_UART7_RTS_2                     /* PF8  */
 #define GPIO_UART7_CTS   (GPIO_UART7_CTS_1 | GPIO_PULLDOWN)   /* PE10 */
 
 #define GPIO_UART8_RX    GPIO_UART8_RX_1    /* PE0 */
@@ -413,36 +402,24 @@
 #define GPIO_CAN2_TX     GPIO_CAN2_TX_1     /* PB13  */
 
 /* SPI
- * SPI1 is sensors1
- * SPI2 is sensors2
- * SPI3 is sensors3
- * SPI4 is Not Used
- * SPI5 is FRAM
- * SPI6 is EXTERNAL1
+ * SPI1 is ICM-45686
+ * SPI2 is LSM6DSV16BXTR
+ * SPI5 is FM25V02A-GTR
  *
  */
 
-#define ADJ_SLEW_RATE(p) (((p) & ~GPIO_SPEED_MASK) | (GPIO_SPEED_2MHz))
-
 #define GPIO_SPI1_MISO   GPIO_SPI1_MISO_3               /* PG9  */
 #define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_2               /* PB5  */
-#define GPIO_SPI1_SCK    ADJ_SLEW_RATE(GPIO_SPI1_SCK_1) /* PA5  */
+#define GPIO_SPI1_SCK    GPIO_SPI1_SCK_1                /* PA5  */
 
 #define GPIO_SPI2_MISO   GPIO_SPI2_MISO_3               /* PI2  */
 #define GPIO_SPI2_MOSI   GPIO_SPI2_MOSI_4               /* PI3  */
-#define GPIO_SPI2_SCK    ADJ_SLEW_RATE(GPIO_SPI2_SCK_6) /* PI1  */
-
-#define GPIO_SPI3_MISO   GPIO_SPI3_MISO_2               /* PC11 */
-#define GPIO_SPI3_MOSI   GPIO_SPI3_MOSI_3               /* PB2  */
-#define GPIO_SPI3_SCK    ADJ_SLEW_RATE(GPIO_SPI3_SCK_2) /* PC10 */
+#define GPIO_SPI2_SCK    GPIO_SPI2_SCK_6                /* PI1  */
 
 #define GPIO_SPI5_MISO   GPIO_SPI5_MISO_2               /* PH7  */
 #define GPIO_SPI5_MOSI   GPIO_SPI5_MOSI_1               /* PF11 */
-#define GPIO_SPI5_SCK    ADJ_SLEW_RATE(GPIO_SPI5_SCK_1) /* PF7  */
+#define GPIO_SPI5_SCK    GPIO_SPI5_SCK_1                /* PF7  */
 
-#define GPIO_SPI6_MISO   GPIO_SPI6_MISO_2               /* PA6  */
-#define GPIO_SPI6_MOSI   GPIO_SPI6_MOSI_1               /* PG14 */
-#define GPIO_SPI6_SCK    ADJ_SLEW_RATE(GPIO_SPI6_SCK_3) /* PB3  */
 
 /* I2C
  *
@@ -540,7 +517,12 @@
 # define PROBE_6    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTD|GPIO_PIN14)  /* PD14 AUX6 */
 # define PROBE_7    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTH|GPIO_PIN6)   /* PH6  AUX7 */
 # define PROBE_8    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTH|GPIO_PIN9)   /* PH9  AUX8 */
-# define PROBE_9    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN11)  /* PE11  CAP1 */
+# define PROBE_9    (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN9)   /* PE9  CAP1 */
+# define PROBE_10   (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTI|GPIO_PIN6)   /* PI6  CAP1 */
+# define PROBE_11   (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTI|GPIO_PIN7)   /* PI7  CAP1 */
+# define PROBE_12   (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTI|GPIO_PIN5)   /* PI5  CAP1 */
+# define PROBE_13   (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN6)   /* PE6  CAP1 */
+# define PROBE_14   (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN11)  /* PE11  CAP1 */
 
 # define PROBE_INIT(mask) \
 	do { \
@@ -553,6 +535,11 @@
 		if ((mask)& PROBE_N(7)) { stm32_configgpio(PROBE_7); } \
 		if ((mask)& PROBE_N(8)) { stm32_configgpio(PROBE_8); } \
 		if ((mask)& PROBE_N(9)) { stm32_configgpio(PROBE_9); } \
+		if ((mask)& PROBE_N(10)) { stm32_configgpio(PROBE_10); } \
+		if ((mask)& PROBE_N(11)) { stm32_configgpio(PROBE_11); } \
+		if ((mask)& PROBE_N(12)) { stm32_configgpio(PROBE_12); } \
+		if ((mask)& PROBE_N(13)) { stm32_configgpio(PROBE_13); } \
+		if ((mask)& PROBE_N(14)) { stm32_configgpio(PROBE_14); } \
 	} while(0)
 
 # define PROBE(n,s)  do {stm32_gpiowrite(PROBE_##n,(s));}while(0)
@@ -563,4 +550,4 @@
 # define PROBE_MARK(n)
 #endif
 
-#endif  /*__NUTTX_CONFIG_LECTRON_PI5_AUTOPILOT_INCLUDE_BOARD_H  */
+#endif  /*__NUTTX_CONFIG_LECTRON_MATRIX_INCLUDE_BOARD_H  */

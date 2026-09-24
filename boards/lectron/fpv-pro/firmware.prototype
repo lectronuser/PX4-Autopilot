@@ -1,10 +1,10 @@
 {
     "board_id": 1234,
     "magic": "PX4FWv1",
-    "description": "Firmware for the Lectron FPV H7 board",
+    "description": "Firmware for the Lectron FPV Pro board",
     "image": "",
     "build_time": 0,
-    "summary": "LectronFPVH7",
+    "summary": "LectronFPVPro",
     "version": "0.1",
     "image_size": 0,
     "image_maxsize": 1966080,

@@ -34,7 +34,7 @@
 /**
  * @file board_config.h
  *
- * Lectron Pi5 Autopilot internal definitions
+ * Lectron Matrix internal definitions
  */
 
 #pragma once
@@ -57,19 +57,6 @@
 #undef TRACE_PINS
 
 /* PX4IO connection configuration */
-
-#define BOARD_USES_PX4IO_VERSION       2
-#define PX4IO_SERIAL_DEVICE            "/dev/ttyS5"
-#define PX4IO_SERIAL_TX_GPIO           GPIO_USART6_TX
-#define PX4IO_SERIAL_RX_GPIO           GPIO_USART6_RX
-#define PX4IO_SERIAL_BASE              STM32_USART6_BASE
-#define PX4IO_SERIAL_VECTOR            STM32_IRQ_USART6
-#define PX4IO_SERIAL_TX_DMAMAP         DMAMAP_USART6_TX
-#define PX4IO_SERIAL_RX_DMAMAP         DMAMAP_USART6_RX
-#define PX4IO_SERIAL_RCC_REG           STM32_RCC_APB2ENR
-#define PX4IO_SERIAL_RCC_EN            RCC_APB2ENR_USART6EN
-#define PX4IO_SERIAL_CLOCK             STM32_PCLK2_FREQUENCY
-#define PX4IO_SERIAL_BITRATE           1500000               /* 1.5Mbps -> max rate for IO */
 
 /* Configuration ************************************************************************************/
 
@@ -124,9 +111,6 @@
 
 /* SPI */
 
-#define SPI6_nRESET_EXTERNAL1       /* PF10 */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTF|GPIO_PIN10)
-#define GPIO_SYNC                   /* PE9  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_100MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN9)
-
 /* I2C busses */
 
 /* Devices on the onboard buses.
@@ -168,37 +152,12 @@
 /* Define GPIO pins used as ADC N.B. Channel numbers must match below  */
 
 #define PX4_ADC_GPIO  \
-	/* PA0  */  GPIO_ADC1_INP16,   \
-	/* PA4  */  GPIO_ADC12_INP18,  \
-	/* PB0  */  GPIO_ADC12_INP9,   \
-	/* PB1  */  GPIO_ADC12_INP5,   \
-	/* PC2  */  GPIO_ADC123_INP12, \
-	/* PC3  */  GPIO_ADC12_INP13,  \
-	/* PF12 */  GPIO_ADC1_INP6,    \
-	/* PH3  */  GPIO_ADC3_INP14,   \
-	/* PH4  */  GPIO_ADC3_INP15
+	/* PH3  */  GPIO_ADC3_INP14
 
 /* Define Channel numbers must match above GPIO pin IN(n)*/
-#define ADC_SCALED_VDD_3V3_SENSORS1_CHANNEL     /* PA0  */  ADC1_CH(16)
-#define ADC_SCALED_VDD_3V3_SENSORS2_CHANNEL     /* PA4  */  ADC1_CH(18)
-#define ADC_SCALED_VDD_3V3_SENSORS3_CHANNEL     /* PB0  */  ADC1_CH(9)
-#define ADC_SCALED_V5_CHANNEL                   /* PB1  */  ADC1_CH(5)
-#define ADC_ADC3_6V6_CHANNEL                    /* PC2  */  ADC3_CH(12)
-#define ADC_BATTERY1_VOLTAGE_CHANNEL            /* PC3  */  ADC1_CH(13)  /* PC3_C mapped to ADC1 via SYSCFG */
-#define ADC_BATTERY_VOLTAGE_CHANNEL             ADC_BATTERY1_VOLTAGE_CHANNEL  /* Alias for board_common.h */
-#define ADC_BATTERY_CURRENT_CHANNEL             (-1)  /* No current sensing */
-#define ADC_SCALED_VDD_3V3_SENSORS4_CHANNEL     /* PF12 */  ADC1_CH(6)
 #define ADC_HW_VER_SENSE_CHANNEL                /* PH3  */  ADC3_CH(14)
-#define ADC_HW_REV_SENSE_CHANNEL                /* PH4  */  ADC3_CH(15)
 
-#define ADC_CHANNELS \
-	((1 << ADC_SCALED_VDD_3V3_SENSORS1_CHANNEL) | \
-	 (1 << ADC_SCALED_VDD_3V3_SENSORS2_CHANNEL) | \
-	 (1 << ADC_SCALED_VDD_3V3_SENSORS3_CHANNEL) | \
-	 (1 << ADC_SCALED_V5_CHANNEL)               | \
-	 (1 << ADC_ADC3_6V6_CHANNEL)                | \
-	 (1 << ADC_BATTERY1_VOLTAGE_CHANNEL)        | \
-	 (1 << ADC_SCALED_VDD_3V3_SENSORS4_CHANNEL))
+#define ADC_CHANNELS
 
 /* HW has to large of R termination on ADC todo:change when HW value is chosen */
 
@@ -219,49 +178,13 @@
 /* HW Version and Revision drive signals Default to 1 to detect */
 #define BOARD_HAS_HW_SPLIT_VERSIONING
 
-#define GPIO_HW_VER_REV_DRIVE  /* PG0 */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_SET|GPIO_PORTG|GPIO_PIN0)
-#define GPIO_HW_REV_SENSE      /* PH4 */  GPIO_ADC3_INP15
-#define GPIO_HW_VER_SENSE      /* PH3 */  GPIO_ADC3_INP14
-#define HW_INFO_INIT_PREFIX    "V6X"
-
 #define BOARD_NUM_SPI_CFG_HW_VERSIONS 1
-//                 Base/FMUM
-#define V6X_0     HW_FMUM_ID(0x0)   // FMUV6X, Auterion,HB  Sensor Set Rev 0
-#define V6X_1     HW_FMUM_ID(0x1)   // FMUV6X, CUAV Sensor Set Rev 1
-#define V6X_3     HW_FMUM_ID(0x3)   // FMUV6X, HB              Sensor Set Rev 3
-#define V6X_4     HW_FMUM_ID(0x4)   // FMUV6X, HB              Sensor Set Rev 4
-#define V6X_6     HW_FMUM_ID(0x6)   // FMUV6X, HB              Sensor Set Rev 6
-#define V6X_8     HW_FMUM_ID(0x8)   // FMUV6X, HB              Sensor Set Rev 8
-#define V6X_16    HW_FMUM_ID(0x10)  // FMUV6X, Auterion        Sensor Set Rev 16 from EEPROM
 
 #define UAVCAN_NUM_IFACES_RUNTIME  1
 
-/* HEATER
- * PWM in future
- */
-#define HEATER_NUM 1
-#define GPIO_HEATER1_OUTPUT  /* PB10  T2CH3 */ \
-	(GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTB|GPIO_PIN10)
-#define HEATER1_OUTPUT_EN(on_true) \
-	px4_arch_gpiowrite(GPIO_HEATER1_OUTPUT, (on_true))
-#define GPIO_HEATER_OUTPUT   /* PB10  T2CH3 */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTB|GPIO_PIN10)
-#define HEATER_OUTPUT_EN(on_true)	       px4_arch_gpiowrite(GPIO_HEATER_OUTPUT, (on_true))
-
-/* PE6 is nARMED
- *  The GPIO will be set as input while not armed HW will have external HW Pull UP.
- *  While armed it shall be configured at a GPIO OUT set LOW
- */
-#if !defined(TRACE_PINS)
-#define GPIO_nARMED_INIT     /* PE6 */  (GPIO_INPUT|GPIO_PULLUP|GPIO_PORTE|GPIO_PIN6)
-#define GPIO_nARMED          /* PE6 */  (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN6)
-#define BOARD_INDICATE_EXTERNAL_LOCKOUT_STATE(enabled)  px4_arch_configgpio((enabled) ? GPIO_nARMED : GPIO_nARMED_INIT)
-#define BOARD_GET_EXTERNAL_LOCKOUT_STATE() px4_arch_gpioread(GPIO_nARMED)
-#endif
-
-
 /* PWM
  */
-#define DIRECT_PWM_OUTPUT_CHANNELS   9
+#define DIRECT_PWM_OUTPUT_CHANNELS   14
 
 
 /* Power supply control and monitoring GPIOs */
@@ -367,7 +290,7 @@
 #define SPEKTRUM_POWER(_on_true)           VDD_3V3_SPEKTRUM_POWER_EN(_on_true)
 
 /*
- * Lectron Pi5 Autopilot has a separate RC_IN
+ * Lectron Matrix has a separate RC_IN
  *
  * GPIO PPM_IN on PI5 T8CH1
  * SPEKTRUM_RX (it's TX or RX in Bind) on UART6 PC7
@@ -401,7 +324,7 @@
 #define BOARD_ADC_USB_CONNECTED (px4_arch_gpioread(GPIO_OTGFS_VBUS))
 #define BOARD_ADC_USB_VALID     (!px4_arch_gpioread(GPIO_nVDD_USB_VALID))
 
-/* Lectron Pi5 Autopilot never powers off the Servo rail */
+/* Lectron Matrix never powers off the Servo rail */
 
 #define BOARD_ADC_SERVO_VALID     (1)
 
@@ -427,7 +350,7 @@
 #  error Unsupported BOARD_HAS_LTC44XX_VALIDS value
 #endif
 
-/* Lectron Pi5 Autopilot has only 1 brick, alias BOARD_ADC_BRICK_VALID for board_common.h */
+/* Lectron Matrix has only 1 brick, alias BOARD_ADC_BRICK_VALID for board_common.h */
 #define BOARD_ADC_BRICK_VALID  BOARD_ADC_BRICK1_VALID
 
 #define BOARD_ADC_PERIPH_5V_OC  (!px4_arch_gpioread(GPIO_VDD_5V_PERIPH_nOC))

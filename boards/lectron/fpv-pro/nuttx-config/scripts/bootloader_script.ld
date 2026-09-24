@@ -1,7 +1,7 @@
 /****************************************************************************
  * scripts/script.ld
  *
- *   Copyright (C) 2016, 2019 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016, 2026 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  *
@@ -34,7 +34,7 @@
  *
  ****************************************************************************/
 
-/* The Lectron FPV uses an STM32H743VI has 2048Kb of main FLASH memory.
+/* The Lectron FPV Pro uses an STM32H743VI has 2048Kb of main FLASH memory.
  * The flash memory is partitioned into a User Flash memory and a System
  * Flash memory. Each of these memories has two banks:
  *
@@ -59,7 +59,7 @@
  *   2) BOOT=1: Boot address defined by user option byte BOOT_ADD1[15:0].
  *      ST programmed value: System bootloader at 0x1FF0:0000
  *
- * The Lectron FPV has a switch on board, the BOOT0 pin is at ground so by default,
+ * The Lectron FPV Pro has a switch on board, the BOOT0 pin is at ground so by default,
  * the STM32 will boot to address 0x0800:0000 in FLASH unless the switch is
  * depressed, then the boot will be from 0x1FF0:0000
  *

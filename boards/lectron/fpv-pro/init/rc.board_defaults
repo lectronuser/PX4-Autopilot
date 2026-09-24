@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Lectron FPV board specific defaults
+# Lectron FPV Pro board specific defaults
 #------------------------------------------------------------------------------
 
 param set-default BAT1_V_DIV 16.4
