@@ -184,7 +184,7 @@
 
 /* PWM
  */
-#define DIRECT_PWM_OUTPUT_CHANNELS   14
+#define DIRECT_PWM_OUTPUT_CHANNELS   9
 
 
 /* Power supply control and monitoring GPIOs */
@@ -257,8 +257,12 @@
 
 /* RC Serial port */
 
-#define RC_SERIAL_PORT                     "/dev/ttyS5"
+#define RC_SERIAL_PORT                     "/dev/ttyS4"
+/* Some RC protocols are bi-directional, therefore we need a half-duplex UART */
 #define RC_SERIAL_SINGLEWIRE
+/* The STM32 UART by default wires half-duplex mode to the TX pin, but our
+ * signal in routed to the RX pin (PC7), so we need to swap the pins */
+#define RC_SERIAL_SWAP_RXTX
 
 /* Input Capture Channels. */
 #define INPUT_CAP1_TIMER                  1

@@ -60,18 +60,21 @@
 #define SERIAL1_DEV    0x04
 
 #define APP_LOAD_ADDRESS               0x08020000
-#define BOOTLOADER_DELAY               3000
+#define BOOTLOADER_DELAY               5000
 #define INTERFACE_USB                  1
 #define INTERFACE_USB_CONFIG           "/dev/ttyACM0"
 #define BOARD_VBUS                     MK_GPIO_INPUT(GPIO_OTGFS_VBUS)
 
 //#define USE_VBUS_PULL_DOWN
+#define INTERFACE_USART                1
+#define INTERFACE_USART_CONFIG         "/dev/ttyS0,115200"
 #define BOARD_TYPE                     1048
+#define _FLASH_KBYTES                  (*(uint32_t *)0x1FF1E880)
 #define BOARD_FLASH_SECTORS            (14)
-#define BOARD_FLASH_SIZE               (16 * 128 * 1024)
+#define BOARD_FLASH_SIZE               (_FLASH_KBYTES * 1024)
 #define APP_RESERVATION_SIZE           (1 * 128 * 1024)
 
-#define OSC_FREQ                       8
+#define OSC_FREQ                       16
 
 #define BOARD_PIN_LED_ACTIVITY         GPIO_nLED_BLUE
 #define BOARD_PIN_LED_BOOTLOADER       GPIO_nLED_RED

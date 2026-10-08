@@ -362,7 +362,8 @@
  * USART1  GPS1
  * USART3  Debug
  * UART4
- * UART5   SBUS / RC (Only RX)
+ * UART5
+ * USART6  SBUS / RC (Only RX, PC7)
  * UART7   Telem1
  * UART8   GPS2
  */
@@ -381,6 +382,9 @@
 // GPIO_UART5_RTS   no remap                    /* PC8  */
 #undef GPIO_UART5_CTS
 #define GPIO_UART5_CTS   ((GPIO_ALT|GPIO_AF8|GPIO_PORTC|GPIO_PIN9) | GPIO_PULLDOWN) /* PC9  */
+
+#define GPIO_USART6_RX   GPIO_USART6_RX_1   /* PC7 */
+#define GPIO_USART6_TX   GPIO_USART6_TX_1   /* PC6 */
 
 #define GPIO_UART7_RX    GPIO_UART7_RX_4                      /* PF6  */
 #define GPIO_UART7_TX    GPIO_UART7_TX_3                      /* PE8  */

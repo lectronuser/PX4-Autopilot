@@ -382,7 +382,7 @@
  * SPI2 OSD AT7456E
  */
 
- #define ADJ_SLEW_RATE(p) (((p) & ~GPIO_SPEED_MASK) | (GPIO_SPEED_2MHz))
+#define ADJ_SLEW_RATE(p) (((p) & ~GPIO_SPEED_MASK) | (GPIO_SPEED_2MHz))
 
 #define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1                  /* PA6 */
 #define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_1                  /* PA7 */

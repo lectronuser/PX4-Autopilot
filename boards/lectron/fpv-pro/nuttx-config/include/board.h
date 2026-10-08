@@ -244,6 +244,13 @@
 
 #define STM32_RCC_D2CCIP2R_USBSRC    RCC_D2CCIP2R_USBSEL_PLL3
 
+/* UART clock selection */
+/* reset to default to overwrite any changes done by any bootloader */
+
+#define STM32_RCC_D2CCIP2R_USART234578_SEL RCC_D2CCIP2R_USART234578SEL_RCC
+#define STM32_RCC_D2CCIP2R_USART16_SEL     RCC_D2CCIP2R_USART16SEL_RCC
+
+
 /* ADC 1 2 3 clock source */
 
 #define STM32_RCC_D3CCIPR_ADCSRC     RCC_D3CCIPR_ADCSEL_PLL2
@@ -387,13 +394,15 @@
  * SPI2 is LSM6DSV
  */
 
-#define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1   /* PA6 */
-#define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_1   /* PA7 */
-#define GPIO_SPI1_SCK    GPIO_SPI1_SCK_1    /* PA5 */
+#define ADJ_SLEW_RATE(p) (((p) & ~GPIO_SPEED_MASK) | (GPIO_SPEED_2MHz))
 
-#define GPIO_SPI2_MISO   GPIO_SPI2_MISO_2   /* PC2 */
-#define GPIO_SPI2_MOSI   GPIO_SPI2_MOSI_3   /* PC3 */
-#define GPIO_SPI2_SCK    GPIO_SPI2_SCK_5    /* PD3 */
+#define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1                  /* PA6 */
+#define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_1                  /* PA7 */
+#define GPIO_SPI1_SCK    ADJ_SLEW_RATE(GPIO_SPI1_SCK_1)    /* PA5 */
+
+#define GPIO_SPI2_MISO   GPIO_SPI2_MISO_2                  /* PC2 */
+#define GPIO_SPI2_MOSI   GPIO_SPI2_MOSI_3                  /* PC3 */
+#define GPIO_SPI2_SCK    ADJ_SLEW_RATE(GPIO_SPI2_SCK_5)    /* PD3 */
 
 /* I2C
  * I2C1 is IST8310
