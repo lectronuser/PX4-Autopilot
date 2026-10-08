@@ -244,6 +244,12 @@
 
 #define STM32_RCC_D2CCIP2R_USBSRC    RCC_D2CCIP2R_USBSEL_PLL3
 
+/* UART clock selection */
+/* reset to default to overwrite any changes done by any bootloader */
+
+#define STM32_RCC_D2CCIP2R_USART234578_SEL RCC_D2CCIP2R_USART234578SEL_RCC
+#define STM32_RCC_D2CCIP2R_USART16_SEL     RCC_D2CCIP2R_USART16SEL_RCC
+
 /* ADC 1 2 3 clock source */
 
 #define STM32_RCC_D3CCIPR_ADCSRC     RCC_D3CCIPR_ADCSEL_PLL2
@@ -326,19 +332,19 @@
  * events as follows:
  *
  *
- *   SYMBOL                     Meaning                      LED state
- *                                                        Red   Green Blue
- *   ----------------------  --------------------------  ------ ------ ----*/
+ *   SYMBOL                     Meaning                   LED state
+ *                                                        Red   Blue
+ *   ----------------------  --------------------------  ------  ----*/
 
-#define LED_STARTED        0 /* NuttX has been started   OFF    OFF   OFF  */
-#define LED_HEAPALLOCATE   1 /* Heap has been allocated  OFF    OFF   ON   */
-#define LED_IRQSENABLED    2 /* Interrupts enabled       OFF    ON    OFF  */
-#define LED_STACKCREATED   3 /* Idle stack created       OFF    ON    ON   */
-#define LED_INIRQ          4 /* In an interrupt          N/C    N/C   GLOW */
-#define LED_SIGNAL         5 /* In a signal handler      N/C    GLOW  N/C  */
-#define LED_ASSERTION      6 /* An assertion failed      GLOW   N/C   GLOW */
-#define LED_PANIC          7 /* The system has crashed   Blink  OFF   N/C  */
-#define LED_IDLE           8 /* MCU is is sleep mode     ON     OFF   OFF  */
+#define LED_STARTED        0 /* NuttX has been started   OFF    OFF  */
+#define LED_HEAPALLOCATE   1 /* Heap has been allocated  OFF    ON   */
+#define LED_IRQSENABLED    2 /* Interrupts enabled       OFF    OFF  */
+#define LED_STACKCREATED   3 /* Idle stack created       OFF    ON   */
+#define LED_INIRQ          4 /* In an interrupt          N/C    GLOW */
+#define LED_SIGNAL         5 /* In a signal handler      N/C    N/C  */
+#define LED_ASSERTION      6 /* An assertion failed      GLOW   GLOW */
+#define LED_PANIC          7 /* The system has crashed   Blink  N/C  */
+#define LED_IDLE           8 /* MCU is is sleep mode     ON     OFF  */
 
 /* Thus if the Green LED is statically on, NuttX has successfully booted and
  * is, apparently, running normally.  If the Red LED is flashing at
@@ -373,40 +379,42 @@
 
 /* SPI
  * SPI1 ICM-42688-P
- * SPI2 is OSD AT7456E
+ * SPI2 OSD AT7456E
  */
 
-#define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1   /* PA6 */
-#define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_1   /* PA7 */
-#define GPIO_SPI1_SCK    GPIO_SPI1_SCK_1    /* PA5 */
+ #define ADJ_SLEW_RATE(p) (((p) & ~GPIO_SPEED_MASK) | (GPIO_SPEED_2MHz))
 
-#define GPIO_SPI2_MISO   GPIO_SPI2_MISO_2   /* PC2 */
-#define GPIO_SPI2_MOSI   GPIO_SPI2_MOSI_3   /* PC3 */
-#define GPIO_SPI2_SCK    GPIO_SPI2_SCK_5    /* PD3 */
+#define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1                  /* PA6 */
+#define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_1                  /* PA7 */
+#define GPIO_SPI1_SCK    ADJ_SLEW_RATE(GPIO_SPI1_SCK_1)    /* PA5 */
+
+#define GPIO_SPI2_MISO   GPIO_SPI2_MISO_2                  /* PC2 */
+#define GPIO_SPI2_MOSI   GPIO_SPI2_MOSI_3                  /* PC3 */
+#define GPIO_SPI2_SCK    ADJ_SLEW_RATE(GPIO_SPI2_SCK_5)    /* PD3 */
 
 /* I2C
- * I2C1 is IST8310
- * I2C2 is BMP581
- * I2C4 is External
+ * I2C1 IST8310
+ * I2C2 BMP581
+ * I2C4 External
  */
 
 #define GPIO_I2C1_SCL GPIO_I2C1_SCL_2       /* PB8  */
 #define GPIO_I2C1_SDA GPIO_I2C1_SDA_1       /* PB7  */
 
-#define GPIO_I2C1_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN8)
-#define GPIO_I2C1_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN7)
+#define GPIO_I2C1_SCL_GPIO (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN8)
+#define GPIO_I2C1_SDA_GPIO (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN7)
 
 #define GPIO_I2C2_SCL GPIO_I2C2_SCL_1       /* PB10  */
 #define GPIO_I2C2_SDA GPIO_I2C2_SDA_1       /* PB11  */
 
-#define GPIO_I2C2_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN10)
-#define GPIO_I2C2_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN11)
+#define GPIO_I2C2_SCL_GPIO (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN10)
+#define GPIO_I2C2_SDA_GPIO (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN11)
 
 #define GPIO_I2C4_SCL GPIO_I2C4_SCL_1       /* PD12  */
 #define GPIO_I2C4_SDA GPIO_I2C4_SDA_1       /* PD13  */
 
-#define GPIO_I2C4_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTD | GPIO_PIN12)
-#define GPIO_I2C4_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTD | GPIO_PIN13)
+#define GPIO_I2C4_SCL_GPIO (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTD | GPIO_PIN12)
+#define GPIO_I2C4_SDA_GPIO (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTD | GPIO_PIN13)
 
 /* SDMMC2
  *
