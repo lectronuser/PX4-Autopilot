@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Lectron FPV board specific defaults
+#------------------------------------------------------------------------------
+
+param set-default BAT1_V_DIV 16.4
+param set-default BAT1_A_PER_V 40.0
+
+# system_power unavailable
+param set-default CBRK_SUPPLY_CHK 894281
+
+# the startup tune is not great on a binary output buzzer, so disable it
+param set-default CBRK_BUZZER 782090
+
+param set-default IMU_GYRO_RATEMAX 2000
